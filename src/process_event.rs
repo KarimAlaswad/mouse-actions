@@ -268,8 +268,17 @@ pub fn process_cmd(cmd: Vec<String>) {
                 .args(&cmd[1..])
                 .process_group(0)
                 .spawn();
-
-            trace!("spawn result : {:?}", res);
+            match res {
+                Ok(mut child) => {
+                    trace!("spawn result : {:?}", child);
+                    if let Err(e) = child.wait() {
+                        error!("Failed to wait on child process: {:?}", e);
+                    }
+                }
+                Err(e) => {
+                    error!("Failed to start command: {:?}", e);
+                }
+            }
         })
         .unwrap();
 }
